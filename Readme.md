@@ -119,10 +119,11 @@ git flow 원칙에 따라 프론트와 백을 각각 나누고 각 feature의 �
 ### 2. ERD
 ![erd](./assets/erd.png)
 
-### 3. API 문서
+<!-- ### 3. API 문서
 https://translucent-polish-c76.notion.site/API-aa2371a188dc4752a3b5d7cb9d271a7b?pvs=4
 ![api1](./assets/api1.png)
-![api2](./assets/api2.png)
+![api2](./assets/api2.png) -->
 
 ## 🛫팀원 및 역할
-![팀원소개](./assets/팀원소개.PNG)
+총 6명
+<!-- ![팀원소개](./assets/팀원소개.PNG) -->
