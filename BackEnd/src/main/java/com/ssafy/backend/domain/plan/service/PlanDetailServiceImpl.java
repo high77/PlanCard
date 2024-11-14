@@ -2,7 +2,12 @@ package com.ssafy.backend.domain.plan.service;
 
 import com.ssafy.backend.domain.card.entity.Card;
 import com.ssafy.backend.domain.card.repository.CardRepository;
+import com.ssafy.backend.domain.member.entity.Member;
+import com.ssafy.backend.domain.member.exception.MemberError;
+import com.ssafy.backend.domain.member.exception.MemberException;
 import com.ssafy.backend.domain.plan.entity.Plan;
+import com.ssafy.backend.domain.plan.exception.PlanError;
+import com.ssafy.backend.domain.plan.exception.PlanException;
 import com.ssafy.backend.domain.plan.repository.PlanRepository;
 import com.ssafy.backend.domain.plan.dto.PlanDetailCreateRequestDto;
 import com.ssafy.backend.domain.plan.dto.PlanDetailListResponseDto;
@@ -24,25 +29,26 @@ public class PlanDetailServiceImpl implements PlanDetailService {
     private final PlanRepository planRepository;
     private final CardRepository cardRepository;
     private final PlanDetailRepository planDetailRepository;
+
+    // Map을 활용한 상세 계획 업데이트 최적화
     @Override
     public void updatePlanDetail(Long planId,
                                           List<PlanDetailCreateRequestDto> planDetailCreateRequestDtoList) {
         if (planDetailCreateRequestDtoList == null || planDetailCreateRequestDtoList.isEmpty()) {
-            throw new RuntimeException("생성할 여행 상세 계획이 없습니다.");
+            throw new PlanException(PlanError.NOT_FOUND_PLAN_DETAIL);
         }
         Plan plan = planRepository.findById(planId).orElseThrow();
         Map<Long, PlanDetail> existingPlanDetails = planDetailRepository.findByPlanId(planId)
                 .stream()
                 .collect(Collectors.toMap(PlanDetail::getId, planDetail -> planDetail));
-        for (PlanDetailCreateRequestDto newplanDetail : planDetailCreateRequestDtoList) {
-            if (newplanDetail.getId() == null) {
-                Card card = cardRepository.findById(newplanDetail.getCardId()).orElseThrow();
-                planDetailRepository.save(newplanDetail.toEntity(card, plan));
+        for (PlanDetailCreateRequestDto newPlanDetail : planDetailCreateRequestDtoList) {
+            if (newPlanDetail.getId() == null) {
+                Card card = cardRepository.findById(newPlanDetail.getCardId()).orElseThrow();
+                planDetailRepository.save(newPlanDetail.toEntity(card, plan));
             } else {
-                PlanDetail planDetail = planDetailRepository.findById(newplanDetail.getId()).orElseThrow();
-                planDetail.update(newplanDetail.getOrderNumber(), newplanDetail.getDay());
-//                planDetailRepository.save(planDetail);
-                existingPlanDetails.remove(newplanDetail.getId());
+                PlanDetail planDetail = planDetailRepository.findById(newPlanDetail.getId()).orElseThrow();
+                planDetail.update(newPlanDetail.getOrderNumber(), newPlanDetail.getDay());
+                existingPlanDetails.remove(newPlanDetail.getId());
             }
         }
         planDetailRepository.deleteAll(existingPlanDetails.values());
